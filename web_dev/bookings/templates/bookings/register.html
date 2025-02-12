@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+</head>
+<body>
+    <form method="post" >
+        <h1>Register here</h1>
+        {% csrf_token %}
+        <label for="username">Username</label>
+        <input type="text" placeholder="username" name="username" id="username">
+        <label for="email">Enter valid google Email ID</label>
+        <input type="text" placeholder="email" name="email" id="email">
+         <label for="username">Password</label>
+        <input type="text" placeholder="Password" name="Password" id="Password">
+        <label for="send_otp">Send OTP:</label>
+        <input type="checkbox" name="send_otp" id="send_otp" value="ON">
+
+        <button type="submit">Register</button>
+        {{error}}
+
+        
+        <form method="POST">
+            <label for="ootp">Enter 6 digits otp sent to your entered email address</label>
+            <input type="number" placeholder="ootp" name="ootp" id="ootp">
+            <input type="hidden" placeholder="username" name="username" id="username">
+            <input type="hidden" placeholder="email" name="email" id="email">
+            <input type="hidden" placeholder="Password" name="Password" id="Password">
+
+        </form>
+    </form>
+</body>
+</html>

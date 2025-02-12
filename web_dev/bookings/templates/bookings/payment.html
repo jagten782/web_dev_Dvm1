@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h3>Booking success!!</h3>
+   <div>
+    Paid Rs:{{cost}}
+   </div>
+    <div>
+        Tickets Booked:{{num_tickets}}
+    </div>
+    <div>
+        Your balance is:{{balance}}
+    </div>
+   <div>
+    <form method="POST" action="{% url 'redirect_to_dashboard' %}">
+        {% csrf_token %}
+       <button type="submit">Go to dashboard</button>
+    </form>
+   </div>
+</body>
+</html>

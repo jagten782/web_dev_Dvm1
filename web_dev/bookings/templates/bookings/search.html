@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <table border="1">
+        <tr>
+            <th>Bus Name</th>
+            <th>Route</th>
+            <th>Departure Time</th>
+            <th>Time Taken</th>
+            <th>Action</th>
+        </tr>
+        {% for bus in buses %}
+        {% for t,p in time.items%}
+        <tr>
+            {% if t == bus.name %}
+            <td>{{ bus.name }}</td>
+            <td>{{ bus.start_location }} → 
+                {% for order in bus.intermediate_stops.all %}
+                {{order.location}} →
+                {% endfor %}
+                {{ bus.end_location }}</td>
+            <td>{{ p }}</td>
+            <td>{{ bus.duration }} hours</td>
+            <td>
+                {% if bus.total_seats > 0 %}
+                    <form method="POST" action="{% url 'select_class' bus.id %}">
+                        {% csrf_token %}
+                        <button type="submit">Check availability and Book Tickets</button>
+                    </form>
+                {% else %}
+                    <span style="color:red;">Full</span>
+                {% endif %}
+            </td>
+            {% endif %}
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6">No buses available</td>
+        </tr>
+        {% endfor %}
+        {% endfor %}
+    </table>
+    {% if error %}
+    <span style="color:red;">{{error}}</span>
+    {% endif %}
+</body>
+</html>

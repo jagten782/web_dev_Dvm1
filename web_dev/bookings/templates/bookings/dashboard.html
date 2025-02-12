@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>passenger dashboard</title>
+</head>
+<body>
+    <form method="POST" action="{% url 'my_bookings' user.id %}">
+        {% csrf_token %}
+        <button type="submit">View my bookings</button>
+    </form>
+    <form method="POST" action="{% url 'book_ticket'  %}">
+        {% csrf_token %}
+        <button type="submit">Book tickets</button>
+    </form>
+    <form method="POST" action="{% url 'transaction_history' user.id %}">
+        {% csrf_token %}
+        <button type="submit">Transaction History</button>
+    </form>
+    <form method="POST" action="{% url 'cancel_ticket_1' user.id %}">
+        {% csrf_token %}
+        <button type="submit">Cancel Bookings</button>
+    </form>
+    <h3>Account balance is : {{balance}}</h3>
+    {% if message %}
+      {{message}}
+    {% endif %}  
+</body>
+</html>

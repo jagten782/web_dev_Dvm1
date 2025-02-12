@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancel Ticket</title>
+</head>
+<body>
+    <form method="POST" action="{% url 'cancel_ticket' user.id %}">
+        {% csrf_token %}
+        
+        <h2>Your Bookings</h2>
+        
+        {% for booking in bookings %}
+        <div>
+            <input type="checkbox" name="cancel_booking" value="{{ booking.id }}">
+            <label for="cancel_booking">Passenger name:{{booking.passenger_name}} 
+                Journey date:{{booking.journey_date}} Busname:{{ booking.bus.name }} 
+                {{booking.bus.start_location}}--->{{booking.bus.end_location}}  (time:{{ booking.bus.departure_time }})</label>
+        </div>
+    {% endfor %}
+
+      
+        <button type="submit">Cancel Selected Bookings</button>
+      </form>
+      <h3>{{message}}</h3>
+</body>
+</html>

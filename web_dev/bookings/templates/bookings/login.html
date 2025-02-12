@@ -1,0 +1,23 @@
+{% load socialaccount %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Booking System</title>
+</head>
+<body>
+     <nav>
+        <a href="{% url 'register' %}">Click here to register</a>
+        <form method="post">
+            {% csrf_token %}
+            <label for="username">Username</label>
+        <input type="text" placeholder="username" name="username" id="username">
+         <label for="username">Password</label>
+        <input type="text" placeholder="Password" name="Password" id="Password">
+            <button type="submit">Login</button>
+        </form>
+     </nav>
+     <a href="{% provider_login_url 'google' %}">Login with Google</a>
+</body>
+</html>

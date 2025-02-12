@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>Select the class in which you want to book the ticket</h2>
+    <form method="POST" action="{% url 'select_class' bus.id %}">
+        {% csrf_token %}
+        {% for r,t in fare.items %}
+        <div>
+        <label for="a_{{r}}">Class: {{r}} fare: {{t}}</label>
+    <input type="radio" name="a" id="a_{{r}}" value="{{t}}">
+       </div>
+        {% endfor %}
+        <div>
+        <button type="submit">book ticket </button>
+    </div>
+    </form>
+</body>
+</html>

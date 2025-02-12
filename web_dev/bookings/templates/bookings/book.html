@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Ticket</title>
+</head>
+<body>
+
+    <h2>Book Ticket for {{ bus.name }}</h2>
+
+    
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+    
+    <form method="POST" action="{% url 'booking' bus_id %}">
+        {% csrf_token %}
+        
+        
+        <label for="tickets">Enter Number of Passengers:</label>
+        <input type="number" name="tickets" id="tickets" value="{{ range|length }}" required>
+        
+        <button type="submit" name="add">Add Details</button>
+    </form>
+
+    {% if range %}
+   
+    <form method="POST" action="{% url 'booking' bus_id %}">
+        {% csrf_token %}
+        
+        <h3>Passenger Details</h3>
+        <input type="hidden" name="tickets" value="{{ range|length }}">
+
+        {% for i in range %}
+            <div class="passenger">
+                <label for="pass_name_{{ i }}">Passenger Name {{ i|add:1 }}:</label>
+                <input type="text" name="pass_name_{{ i }}" id="pass_name_{{ i }}" required>
+
+                <label for="email_{{ i }}">Passenger Email {{ i|add:1 }}:</label>
+                <input type="email" name="email_{{ i }}" id="email_{{ i }}" required>
+            </div>
+            <br>
+        {% endfor %}
+
+       
+        <label for="payments">Save and Make Payment:</label>
+        <input type="checkbox" name="payments" id="payments" value="ON">
+
+        <button type="submit" name="payments">Pay Now</button>
+    </form>
+    {% endif %}
+
+</body>
+</html>

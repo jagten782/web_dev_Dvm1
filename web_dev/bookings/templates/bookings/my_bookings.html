@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My bokings</title>
+</head>
+<body>
+    <h3>You have a ticket booked on {{ bookings.booked_at }} </h3>
+    <h2>Bookings for Customer {{ user_id }}</h2>
+
+{% if bookings %}
+    <ul>
+    {% for booking in bookings %}
+        <li>
+            <strong>Bus Name:</strong> {{ booking.bus.name }} <br>
+            <strong>Passenger Name:</strong> {{ booking.passenger_name }} <br>
+            <strong>Passenger Email:</strong> {{ booking.passenger_email }} <br>
+            <strong>Number of Tickets:</strong> {{ booking.num_tickets }} <br>
+            <strong>Departure Time:</strong> {{ booking.bus.departure_time }} <br>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No bookings found for this customer.</p>
+{% endif %}
+
+</body>
+</html>

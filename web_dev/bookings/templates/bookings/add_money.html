@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p style="color: red;">{{ error }}</p>
+    <h4>Add money to your wallet</h4>
+    <form method="POST" action="{% url 'add_money' user.id %}">
+        {% csrf_token %}
+        <label for="add">enter amount to be added</label>
+        <input type="number" label="add" id="add" name="add" required>
+        <button type="submit">Proceed</button>
+    </form>
+
+</body>
+</html>

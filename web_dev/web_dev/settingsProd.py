@@ -89,7 +89,7 @@ WSGI_APPLICATION = "web_dev.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'alBus_Data',
+        'NAME': 'albus_data',
         'USER': 'aditya',
         'PASSWORD': os.environ.get("DB_PASSWORD"),
         'HOST': 'localhost',

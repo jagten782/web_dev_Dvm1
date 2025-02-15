@@ -9,7 +9,7 @@
 <body>
      <nav>
         <a href="{% url 'register' %}">Click here to register</a>
-        <form method="post">
+        <form method="POST">
             {% csrf_token %}
             <label for="username">Username</label>
         <input type="text" placeholder="username" name="username" id="username">
@@ -19,5 +19,6 @@
         </form>
      </nav>
      <a href="{% provider_login_url 'google' %}">Login with Google</a>
+     {{error}}
 </body>
 </html>

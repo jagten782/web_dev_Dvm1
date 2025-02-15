@@ -33,10 +33,18 @@ class Seatclass(models.Model):
         if self.bus != b:
             raise ValueError("The seat class does not belong to the given bus.")
         if self.available_seats >= num_tickets:
-            # Decrease the available seats by the number of tickets booked
+            
             self.available_seats -= num_tickets
-            # Save the updated seat class object
             self.save()
+
+    def update_seats_aftercancellation(self,num_tickets,bus_id):
+        b=Bus.objects.get(id=bus_id)
+        if self.bus != b:
+            raise ValueError("The seat class does not belong to the given bus.")
+        else:
+            self.available_seats += num_tickets
+            self.save()
+             
         
 
 
@@ -64,6 +72,9 @@ class Booking(models.Model):
     journey_date=models.DateField(default=timezone.now)
     boarding=models.CharField(max_length=100,default='enter')
     deboarding=models.CharField(max_length=100,default='enter')
+    time=models.TimeField(default='00:00:00')
+    travelling_class=models.CharField(max_length=100,default='none')
+    cost=models.IntegerField(default='0')
 
     def __str__(self):
         return f"{self.user.username} - {self.bus.name} ({self.num_tickets} tickets)"

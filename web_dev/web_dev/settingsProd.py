@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,12 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-7jlse7zk8u*!h^67b3ci=mot_@&j^6#5!s6%pzs=oxp56+0!jp"
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1','bus_booking']
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1','bus_booking', 'albus.aditya.com']
 
 LOGIN_REDIRECT_URL = 'bookings/dashboard'
 
@@ -86,9 +89,9 @@ WSGI_APPLICATION = "web_dev.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'aditya',
+        'NAME': 'albus_Data',
         'USER': 'aditya',
-        'PASSWORD': 'web_dev_2025',
+        'PASSWORD': os.environ.get("DB_PASSWORD"),
         'HOST': 'localhost',
         'PORT': '5432',
     }

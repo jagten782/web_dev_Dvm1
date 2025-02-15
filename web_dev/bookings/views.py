@@ -16,10 +16,16 @@ from django.db.models import Q
 
 
 def register(request):
+    print(request)
     if request.method == 'POST':
         uname=request.POST.get('username')
         uemail=request.POST.get('email')
         upass=request.POST.get('Password')
+        request.session['username']=uname
+        request.session['email']=uemail
+        request.session['Password']=upass
+        print(f'{uname}. {uemail}.  {upass} sending to backend')
+        
         if User.objects.filter(username=uname).exists():
             return render(request, "bookings/register.html", {"error": "Username already taken!"})
         if User.objects.filter(email=uemail).exists():
@@ -27,14 +33,9 @@ def register(request):
         request.session['user_email'] = uemail
         print(uemail)
         if 'send_otp' in request.POST:
-         send_mail(
-             'Hello How are you',
-             'This a test message',
-             'sammymodk23@gmail.com',
-             ['vidhu3968@gmail.com']
-         )
          r_email=request.session['user_email']
          send_otp_email(request,r_email)
+        if 'verify_otp' in request.POST: 
          otp=request.session['otp']
          i_otp=request.POST.get('ootp')
          if otp==i_otp:
@@ -47,11 +48,22 @@ def register(request):
              return render(request,'bookings/register.html',{'message_1':'You have entered wrong otp!!!'})
         else:
             return render(request,'bookings/register.html',{'message':'show otp'}) 
-    return  render(request, "bookings/register.html")  
+    return  render(request, "bookings/register.html") 
+
+
+
+
+
+
+
+
+
 
 
 
 def login_1(request):
+    print(User.objects.all())
+    print(Bus.objects.all())
     if request.method== 'POST':
          uname=request.POST.get('username')
          upass=request.POST.get('Password')
@@ -121,10 +133,31 @@ def search_results(request):
          if date:
              date = datetime.strptime(date, '%Y-%m-%d')
              day_of_week = date.strftime('%A')
-
+             print(source)
+             print(dest)
+             print('\n')
              buses = Bus.objects.filter(
-             Q(start_location=source) | Q(intermediate_stops__location__icontains=source),
-             Q(end_location=dest) | Q(intermediate_stops__location__icontains=dest)).filter(running_days__icontains=day_of_week).distinct()
+             Q(start_location__icontains=source) | Q(intermediate_stops__location__icontains=source),
+             Q(end_location__icontains=dest) | Q(intermediate_stops__location__icontains=dest)).filter(running_days__icontains=day_of_week).distinct()
+             buses_1=Bus.objects.filter(running_days__icontains=day_of_week).distinct()
+
+             for bus in buses_1:
+                 stops = Intermediatestop.objects.filter(bus=bus).order_by('stop_order')
+    
+                 source_found = False
+                 dest_found = False
+
+                 for stop in stops:
+        
+                     if stop.location == source:
+                         source_found = True
+                     if stop.location == dest:
+                         dest_found = True
+        
+                     if source_found and dest_found:
+                         if stops.filter(location=source).first().stop_order < stop.stop_order:
+                            buses=Bus.objects.filter(name=bus.name).distinct()  
+                            break                  
              time={}
              print(buses)
              for bus in buses:
@@ -135,8 +168,8 @@ def search_results(request):
                          print(f'Source is {source}')
                          print(f' Arrival time is :{order.arrival_time}')
                          time[bus.name]=order.arrival_time
-
-             formatted_time = {bus: arrival_time.strftime('%H:%M') for bus, arrival_time in time.items()}  
+             formatted_time = {bus: arrival_time.strftime('%H:%M') for bus, arrival_time in time.items()} 
+             request.session['time']=formatted_time 
              print(f'I am sending this to html file f{formatted_time}')  
              print(f'Buses contains this : {buses}')      
              if buses.exists():
@@ -167,7 +200,7 @@ def select_class(request,bus_id):
     buses=Bus.objects.filter(id=bus_id)
     s_1=(Intermediatestop.objects.filter(location=source))
     s_2=(Intermediatestop.objects.filter(location=dest))
-    print(f'{s_1}.  {s_2}')
+    print(f' hey!!!{s_1}.  {s_2}')
     if  s_1.exists():
         multi_1=s_1.first().fare_multiplier
     else:
@@ -246,6 +279,14 @@ def booking(request, bus_id):
                     'error': "Not enough seats available.",
                     'range': range(num_tickets)
                 })
+            time_1={}
+            time_1=request.session.get('time')
+            print(time_1)
+            for a,b in time_1.items():
+                if (a==bus.name):
+                    print(f'{a}---->{b}')
+
+                    time_ofdepart=b
 
             
             for i in range(num_tickets):
@@ -271,7 +312,10 @@ def booking(request, bus_id):
                         num_tickets=1,
                         journey_date=journey_date,
                         boarding=source,
-                        deboarding=dest
+                        deboarding=dest,
+                        time=time_ofdepart,
+                        travelling_class=request.session.get('travel_class'),
+                        cost=fare
                     )
                     bus.save()
                     print(f'Ticket booked for: {name}')
@@ -364,10 +408,10 @@ def cancel_ticket(request,user_id):
     
     bookings= Booking.objects.filter(user=user_id,status='booked')
     now = timezone.now() 
-# Then you can proceed with your existing logic
+    
     future_bookings = []
     for booking in bookings:
-         date_time = datetime.combine(booking.journey_date, booking.bus.departure_time)
+         date_time = datetime.combine(booking.journey_date, booking.time)
          now_min = (now.hour * 60) + now.minute
          depart_min = (date_time.hour * 60) + date_time.minute
          if((now.month < date_time.month) or ((now.month==date_time.month)and(now.day < date_time.day)) or ((now.month==date_time.month)and(now.day==date_time.day)and(depart_min - now_min) >= 360)):
@@ -383,7 +427,9 @@ def cancel_ticket(request,user_id):
             booking_tocancel=Booking.objects.filter(id__in=cancel_booking_ids)
             for booking in booking_tocancel:
                 booking.cancel_booking()
-                wallet.deposit(booking.bus.fare)
+                seat=Seatclass.objects.get(name=booking.travelling_class)
+                seat.update_seats_aftercancellation(1,booking.bus.id)
+                wallet.deposit(booking.cost)
             print(f'Balance after cancelling ticket is :{wallet.balance}')    
         return render(request,'bookings/dashboard.html',{'bookings':future_bookings,'message':'Successfully cancelled ticket!!!','balance':wallet.balance})
     else:
@@ -417,6 +463,7 @@ def send_otp_email(request,user_email):
     otp=random.randint(100000, 999999)
     subject = 'Your OTP for Bus Booking'
     message = f'Your One-Time Password (OTP) is: {otp}'
+    print(otp)
     request.session['otp'] = otp
     from_email = settings.EMAIL_HOST_USER
     print(f'Email sent to {user_email}')
@@ -438,14 +485,32 @@ def avail_seats(bus_id,request,seat_type):
     p=0
     le=Seatclass.objects.get(name=seat_type)
     l=le.available_seats
+    dict_2={}
+    arr_1=[]
     for i in range(0,length):
         p=0
         for j in range(0,length):
             for b in book:
-                if (b.boarding==dict[i]) and (b.deboarding==dict[j]) and (j>i):
+                if (((b.boarding==dict[i]) and (b.deboarding==dict[j]) and (j>i))):
                     p=p+1
             if(j>i):        
                  dict_1[f'{dict[i]} to {dict[j]}']=l-p
+
+
+    for i in range(0,1):
+        for j in range(1,length):
+            if ((j>i) and (dict_1[f'{dict[i]} to {dict[j]}']<l)):
+                p= dict_1[f'{dict[i]} to {dict[j]}']
+                print(f"outer loop elements:{dict[i]} to {dict[j]} i:{i} j:{j}")
+                print(p)
+                for a in range(1,j):
+                    print("a loop \n")
+                    print(dict[a])
+                    for b in range(1,j):
+                        if ((b>a)):
+                            dict_1[f'{dict[a]} to {dict[b]}']-=l-p
+                            print(f"reducing seats in : {dict[a]} to {dict[b]}")
+    print(book)
     print(dict)
     print(dict_1)
     return(dict_1)

@@ -18,28 +18,29 @@
          <label for="username" style="gap:0px;">Password</label>
         <input type="text" placeholder="Password" name="Password" id="Password">
 
-        <label for="send_otp">Send OTP:</label>
+        <label for="send_otp">Verify email</label>
         <input type="checkbox" name="send_otp" id="send_otp" value="ON">
-        <button type="submit">Register</button>
+        <button type="submit">GET OTP </button>
         {{error}}
     </form>
     
 
-        
+{% if message %}       
     <form method="POST" action="{% url 'register' %}">
         {% csrf_token %}
             <label for="ootp">Enter 6 digits otp sent to your entered email address</label>
-            <input type="number" placeholder="ootp" name="ootp" id="ootp">
-            <input type="hidden" placeholder="username" name="username" id="username">
-            <input type="hidden" placeholder="email" name="email" id="email">
-            <input type="hidden" placeholder="Password" name="Password" id="Password">
+            <input type="number" placeholder="ootp" name="ootp" id="ootp" >
+            <input type="hidden" placeholder="username" name="username" id="username" value="{{ range.0 }}">
+            <input type="hidden" placeholder="email" name="email" id="email" value="{{ range.1 }}">
+            <input type="hidden" placeholder="Password" name="Password" id="Password" value="{{ range.2 }}">
             <div>
                 <label for="verify_otp">Verify OTP:</label>
                 <input type="checkbox" name="verify_otp" id="verify_otp" value="ON">
             </div>
-            <button type="submit">submit otp</button>
+            <button type="submit">SUBMIT AND REGISTER</button>
             
      </form>
+{% endif %}     
     
 </body>
 </html>

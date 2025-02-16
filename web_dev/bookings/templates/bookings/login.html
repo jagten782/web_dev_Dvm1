@@ -9,7 +9,7 @@
 <body>
      <nav>
         <a href="{% url 'register' %}">Click here to register</a>
-        <form method="POST">
+        <form method="POST" action="{% url 'login_1' %}">
             {% csrf_token %}
             <label for="username">Username</label>
         <input type="text" placeholder="username" name="username" id="username">
@@ -20,5 +20,8 @@
      </nav>
      <a href="{% provider_login_url 'google' %}">Login with Google</a>
      {{error}}
+     {% if message %}
+     <p style="color: green;">{{ message }}</p>
+     {% endif %}
 </body>
 </html>

@@ -25,29 +25,35 @@ def register(request):
         request.session['email']=uemail
         request.session['Password']=upass
         print(f'{uname}. {uemail}.  {upass} sending to backend')
+        range=[uname,uemail,upass]
         
         if User.objects.filter(username=uname).exists():
             return render(request, "bookings/register.html", {"error": "Username already taken!"})
-        if User.objects.filter(email=uemail).exists():
-            return render(request, "bookings/register.html", {"error": "Email already registered!"})
         request.session['user_email'] = uemail
         print(uemail)
         if 'send_otp' in request.POST:
          r_email=request.session['user_email']
          send_otp_email(request,r_email)
-        if 'verify_otp' in request.POST: 
+        if 'verify_otp' in request.POST:
+         print('hello') 
+         print('\n')
          otp=request.session['otp']
          i_otp=request.POST.get('ootp')
-         if otp==i_otp:
+         print(f'otp generated is {otp}  otp entered is {i_otp}')
+         print('\n')
+         if ((int(otp)-int(i_otp))==0):
+             print('verified')
+
              user_1=User.objects.create_user(uname,uemail,upass)
              user_1.save()
+             print('created user')
              user_1.is_staff=True
              wallet, created = Wallet.objects.get_or_create(user=request.user)
-             return render(request,"bookings/dashboard.html",{'balance':wallet.balance})
+             return render(request,"bookings/login.html",{'message':'CREATED ACCOUNT SUCCESSFULLY!'})
          else:
              return render(request,'bookings/register.html',{'message_1':'You have entered wrong otp!!!'})
         else:
-            return render(request,'bookings/register.html',{'message':'show otp'}) 
+            return render(request,'bookings/register.html',{'message':'show otp','range':range}) 
     return  render(request, "bookings/register.html") 
 
 
@@ -514,6 +520,12 @@ def avail_seats(bus_id,request,seat_type):
     print(dict)
     print(dict_1)
     return(dict_1)
+
+
+
+
+
+
 
 
           

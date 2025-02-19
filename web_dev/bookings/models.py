@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 import uuid
 from django.utils import timezone
+from django.http import HttpResponse
+import pandas as pd
 
 
 
@@ -102,6 +104,12 @@ class Wallet(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - Balance: {self.balance}"
+    
+
+
+
+
+
 
 
 

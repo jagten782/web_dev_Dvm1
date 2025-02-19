@@ -8,9 +8,13 @@ from decimal import Decimal
 from datetime import datetime,timedelta
 from django.utils import timezone
 import random
+from django.http import HttpResponse
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Q
+import pandas as pd
+from django.contrib import admin
+
 
 
 
@@ -520,6 +524,50 @@ def avail_seats(bus_id,request,seat_type):
     print(dict)
     print(dict_1)
     return(dict_1)
+
+
+def export_1(request):
+    data=Booking.objects.all()
+    read=pd.DataFrame(data)
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    
+    response['Content-Disposition'] = 'attachment; filename="reservations.xlsx"'
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        read.to_excel(writer, index=False, sheet_name='Reservations')
+
+    return response
+
+@admin.action(description='Export all bookings to Excel')
+def export(modeladmin, request,queryset):
+    bookings = queryset
+
+    bookings =Booking.objects.all()
+    data=[]
+    for booking in bookings:
+        data.append({
+            'user': booking.user.username,
+            'bus': booking.bus.name,
+            'num_tickets': booking.num_tickets,
+            'passenger_name': booking.passenger_name,
+            'passenger_email': booking.passenger_email,
+            'status': booking.status,
+            'journey_date': booking.journey_date,
+            'boarding': booking.boarding,
+            'deboarding': booking.deboarding,
+            'time': booking.time,
+            'travelling_class': booking.travelling_class
+        })
+    read = pd.DataFrame(data)
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+    response['Content-Disposition'] = 'attachment; filename="all_bookings.xlsx"'
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        read.to_excel(writer, index=False, sheet_name='Bookings')
+
+    return response
+
+
 
 
 

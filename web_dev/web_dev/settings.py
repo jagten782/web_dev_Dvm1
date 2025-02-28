@@ -26,9 +26,9 @@ SECRET_KEY = "django-insecure-7jlse7zk8u*!h^67b3ci=mot_@&j^6#5!s6%pzs=oxp56+0!jp
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1','bus_booking']
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1','bus_booking','13.233.122.153']
 
-LOGIN_REDIRECT_URL = 'bookings/dashboard'
+LOGIN_REDIRECT_URL = '/bookings/dashboard/'
 
 # Application definition
 
@@ -86,7 +86,7 @@ WSGI_APPLICATION = "web_dev.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'aditya',
+        'NAME': 'aditya_3',
         'USER': 'aditya',
         'PASSWORD': 'web_dev_2025',
         'HOST': 'localhost',

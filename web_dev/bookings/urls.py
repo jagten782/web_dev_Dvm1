@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     path('login/', views.login_1, name='login_1'),
     path('register/', views.register, name='register'),
+    path('bookings/login/',views.login_1,name='login'),
     path('book_ticket/', views.book_ticket, name='book_ticket'),
     path('transaction_history/<int:user_id>/', views.transactions, name='transaction_history'),
     path('my_bookings/<int:user_id>/', views.my_bookings, name='my_bookings'),
@@ -15,7 +16,7 @@ urlpatterns = [
     path('add_money/<int:user_id>/',views.add_money,name='add_money'),
     path('redirect_to_dashboard/',views.redirect_to_dashboard,name='redirect_to_dashboard'),
     path('cancel_ticket/<int:user_id>/',views.cancel_ticket,name='cancel_ticket'),
-    path('cancel_ticket_1/<int:user_id>/',views.cancel_ticket_1,name='cancel_ticket_1'),
+     path('cancel_ticket_1/<int:user_id>/',views.cancel_ticket_1,name='cancel_ticket_1'),
     path('dashboard/',views.dashboard,name='dashboard'),
     path('select_class/<int:bus_id>/',views.select_class,name='select_class')
 ]

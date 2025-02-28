@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login,authenticate  
 from django.contrib.auth.decorators import user_passes_test,login_required
 from django.shortcuts import get_object_or_404
-from .models import Bus, Booking,Wallet,Seatclass,Intermediatestop
+from .models import Bus, Booking,Wallet,Seatclass,Intermediatestop,Route,Day
 from decimal import Decimal
 from datetime import datetime,timedelta
 from django.utils import timezone
@@ -14,10 +14,6 @@ from django.conf import settings
 from django.db.models import Q
 import pandas as pd
 from django.contrib import admin
-
-
-
-
 
 def register(request):
     print(request)
@@ -61,16 +57,6 @@ def register(request):
     return  render(request, "bookings/register.html") 
 
 
-
-
-
-
-
-
-
-
-
-
 def login_1(request):
     print(User.objects.all())
     print(Bus.objects.all())
@@ -89,47 +75,17 @@ def login_1(request):
     return render(request, "bookings/login.html") 
 
 
-
-
-
-
-
-
 def book_ticket(request):
     return render(request,"bookings/book_ticket.html")
 
  
-
-
-
-
-
-
-
-
 def my_bookings(request,user_id):
   bookings= Booking.objects.filter(user=request.user,status='booked')
   return render(request,"bookings/my_bookings.html",{'bookings':bookings,'user_id':user_id})
 
 
-
-
-
-
-
-
-
-
-
 def transactions(request,user_id):
     return render(request,"bookings/book_ticket.html")
-
-
-
-
-
-
-
 
 
 def search_results(request):
@@ -143,47 +99,36 @@ def search_results(request):
          if date:
              date = datetime.strptime(date, '%Y-%m-%d')
              day_of_week = date.strftime('%A')
-             print(source)
-             print(dest)
-             print('\n')
-             buses = Bus.objects.filter(
-             Q(start_location__icontains=source) | Q(intermediate_stops__location__icontains=source),
-             Q(end_location__icontains=dest) | Q(intermediate_stops__location__icontains=dest)).filter(running_days__icontains=day_of_week).distinct()
-             buses_1=Bus.objects.filter(running_days__icontains=day_of_week).distinct()
-
-             for bus in buses_1:
-                 stops = Intermediatestop.objects.filter(bus=bus).order_by('stop_order')
-    
-                 source_found = False
-                 dest_found = False
-
-                 for stop in stops:
-        
-                     if stop.location == source:
-                         source_found = True
-                     if stop.location == dest:
-                         dest_found = True
-        
-                     if source_found and dest_found:
-                         if stops.filter(location=source).first().stop_order < stop.stop_order:
-                            buses=Bus.objects.filter(name=bus.name).distinct()  
-                            break                  
+             request.session['day']=day_of_week
+             buses = Bus.objects.all()
              time={}
-             print(buses)
+             days = Day.objects.filter(day_of_week=day_of_week)
+             buses_1=[]
              for bus in buses:
-                 if (source==bus.start_location):
-                     time[bus.name]=bus.departure_time
-                 for order in bus.intermediate_stops.all():
-                     if (source == order.location):
-                         print(f'Source is {source}')
-                         print(f' Arrival time is :{order.arrival_time}')
-                         time[bus.name]=order.arrival_time
+                print("loop starts")
+                stops = Route.objects.filter(bus=bus)
+                print(stops)
+                for stop in stops:
+                    s=0
+                    k=0
+                    for intermediate_stop in stop.intermediate_stops.all():
+                         if str(intermediate_stop.location) == source:
+                              s=intermediate_stop.stop_order
+                              t=intermediate_stop.arrival_time
+                         if str(intermediate_stop.location) == dest:
+                            k=intermediate_stop.stop_order
+                         if s<k and ((s*k)>0):    
+                                n=bus.name
+                                buses_1.append(n)
+                                time[n]=t
+             bus=Bus.objects.filter(name__in=buses_1).filter(routes__day__in=days)                           
+             days = Day.objects.filter(day_of_week=day_of_week)
              formatted_time = {bus: arrival_time.strftime('%H:%M') for bus, arrival_time in time.items()} 
              request.session['time']=formatted_time 
              print(f'I am sending this to html file f{formatted_time}')  
-             print(f'Buses contains this : {buses}')      
+             print(f'Buses contains this : {buses_1}')      
              if buses.exists():
-                  return render(request,"bookings/search.html",{'buses':buses,'time':formatted_time})
+                  return render(request,"bookings/search.html",{'buses':bus,'time':formatted_time})
              else:
                  return render(request, "bookings/book_ticket.html", {"error": "No buses found on this day."})
          else:
@@ -200,29 +145,34 @@ def book_form(request,bus_id):
 
 
 
-
-
 def select_class(request,bus_id):
     source=request.session.get('source')
     dest=request.session.get('Destination')
     date=request.session.get('date')
     fare={}
     buses=Bus.objects.filter(id=bus_id)
-    s_1=(Intermediatestop.objects.filter(location=source))
-    s_2=(Intermediatestop.objects.filter(location=dest))
-    print(f' hey!!!{s_1}.  {s_2}')
+    s_1=(Intermediatestop.objects.filter(location__location=source).distinct())
+    s_2=(Intermediatestop.objects.filter(location__location=dest).distinct())
+    print(s_1)
+    print("\n")
+    print(s_2)
     if  s_1.exists():
         multi_1=s_1.first().fare_multiplier
-    else:
-        multi_1=1
     if  s_2.exists():
          multi_2=s_2.first().fare_multiplier
-    else:
-        multi_2=0
+    print("Debugging :\n")     
+    day=request.session.get('day')
     for bus in buses:    
          for t in bus.seat_classes.all():
-             fare_calc=t.price_class*(multi_1-multi_2)
-             fare[t.name]=fare_calc
+             print(t)
+             for d in t.day.all():
+                 print(d)
+                 print(f"{d}=={day}")
+                 if str(d)==str(day): 
+                   print("accmomp")
+                   print(t)
+                   fare_calc=t.price_class*(multi_1-multi_2)
+                   fare[t.name]=fare_calc
     if request.method=="POST":
         if 'a' in request.POST:
               ft=request.POST.get('a')
@@ -231,9 +181,7 @@ def select_class(request,bus_id):
               for a,b in fare.items():
                   print(f'{b}=={ft}')
                   if (float(b) == float(ft)):
-                      print(f'{b}=={ft}')
                       clas=a
-                      print(clas)
               request.session['travel_class']=clas        
               dict=avail_seats(bus_id,request,clas)
               for a,b in dict.items():
@@ -251,17 +199,6 @@ def select_class(request,bus_id):
 
             
 
-
-
-
-
-
-
-
-
-
-
-
 def booking(request, bus_id):
     if request.method == "POST":
         bus = get_object_or_404(Bus, id=bus_id)
@@ -271,7 +208,6 @@ def booking(request, bus_id):
         source=request.session.get('source')
         dest=request.session.get('Destination')
         print(f'Balance before :{wallet.balance}')
-
         if 'add' in request.POST:
             num_tickets = int(request.POST.get('tickets', 1))
             
@@ -279,7 +215,6 @@ def booking(request, bus_id):
                 'range': range(num_tickets),
                 'bus_id': bus_id
             })
-
         elif 'payments' in request.POST:
             num_tickets = int(request.POST.get('tickets', 1))
 
@@ -297,8 +232,6 @@ def booking(request, bus_id):
                     print(f'{a}---->{b}')
 
                     time_ofdepart=b
-
-            
             for i in range(num_tickets):
                 name = request.POST.get(f'pass_name_{i}')
                 email = request.POST.get(f'email_{i}')
@@ -311,8 +244,6 @@ def booking(request, bus_id):
                 cost=Decimal(cost)
                 if wallet.balance>=cost:
                     wallet.withdraw(cost)
-
-                
                     if name and email:
                          Booking.objects.create(
                         user=request.user,
@@ -325,7 +256,7 @@ def booking(request, bus_id):
                         deboarding=dest,
                         time=time_ofdepart,
                         travelling_class=request.session.get('travel_class'),
-                        cost=fare
+                        cost=cost
                     )
                     bus.save()
                     print(f'Ticket booked for: {name}')
@@ -346,15 +277,7 @@ def booking(request, bus_id):
         
     else:
         return render(request, 'bookings/book.html', {'bus_id':bus_id})
-
-
-
-
-
-
-
-
-
+    
 
 def add_money(request,user_id):
     if request.method=='POST':
@@ -362,27 +285,17 @@ def add_money(request,user_id):
         if money:
             try:
                 money_decimal = Decimal(money.strip())
-
                 wallet, created = Wallet.objects.get_or_create(user=request.user)
-                
                 wallet.deposit(money_decimal)
                 print(f"update balance is:{wallet.balance}")
-                
                 return render(request, 'bookings/dashboard.html',{'balance':wallet.balance})
-            
             except :
                 error_message = "Invalid amount entered. Please enter a valid number."
                 return render(request, 'bookings/add_money.html', {'error': error_message})
         else:
             error_message = "Please enter a valid amount."
             return render(request, 'bookings/add_money.html', {'error': error_message})
-
     return render(request, 'bookings/add_money.html')  
-
-
-
-
-
 
 
 
@@ -390,16 +303,9 @@ def redirect_to_dashboard(request):
     wallet, created = Wallet.objects.get_or_create(user=request.user)
     return render(request,'bookings/dashboard.html',{'balance':wallet.balance})
 
-
-
 def dashboard(request):
     return render(request,'bookings/dashboard.html')
 
-
-
-
-
-    
 
 
 def pay_confirm(request,user_id):
@@ -408,17 +314,9 @@ def pay_confirm(request,user_id):
 
 
 
-
-
-
-
-
-
 def cancel_ticket(request,user_id):
-    
     bookings= Booking.objects.filter(user=user_id,status='booked')
     now = timezone.now() 
-    
     future_bookings = []
     for booking in bookings:
          date_time = datetime.combine(booking.journey_date, booking.time)
@@ -428,7 +326,6 @@ def cancel_ticket(request,user_id):
                  print(booking)
                  print(now)
                  future_bookings.append(booking)
-    
     if request.method=='POST':
         wallet,created = Wallet.objects.get_or_create(user=request.user)
         print(f'Balance before cancelling ticket is :{wallet.balance}')
@@ -444,28 +341,24 @@ def cancel_ticket(request,user_id):
         return render(request,'bookings/dashboard.html',{'bookings':future_bookings,'message':'Successfully cancelled ticket!!!','balance':wallet.balance})
     else:
         return render(request,'bookings/cancel_ticket.html',{'bookings':future_bookings})
-
+    
 
 
 
 def cancel_ticket_1(request,user_id):
-     bookings= Booking.objects.filter(user=user_id,status='booked')
-     now = timezone.now() 
-# Then you can proceed with your existing logic
-     future_bookings = []
-     for booking in bookings:
-         date_time = datetime.combine(booking.journey_date, booking.bus.departure_time)
+    
+    bookings= Booking.objects.filter(user=user_id,status='booked')
+    now = timezone.now() 
+    future_bookings = []
+    for booking in bookings:
+         date_time = datetime.combine(booking.journey_date, booking.time)
          now_min = (now.hour * 60) + now.minute
          depart_min = (date_time.hour * 60) + date_time.minute
          if((now.month < date_time.month) or ((now.month==date_time.month)and(now.day < date_time.day)) or ((now.month==date_time.month)and(now.day==date_time.day)and(depart_min - now_min) >= 360)):
                  print(booking)
                  print(now)
                  future_bookings.append(booking)
-     return render(request,'bookings/cancel_ticket.html',{'user_id':user_id,'bookings':future_bookings})
-
-
-
-
+    return render(request,'bookings/cancel_ticket.html',{'bookings':future_bookings})             
 
 
 
@@ -480,63 +373,53 @@ def send_otp_email(request,user_email):
     send_mail(subject, message, from_email,[user_email])
 
 
-
-
 def avail_seats(bus_id,request,seat_type):
-    book=Booking.objects.filter(status='booked')
+    bus=Bus.objects.get(id=bus_id)
+    book=Booking.objects.filter(bus=bus).filter(status='booked')
     dict=[] 
     dict_1={}
-    bus=Bus.objects.get(id=bus_id)
-    dict.append(bus.start_location)
-    for order in bus.intermediate_stops.all():
-        dict.append(order.location)
-    dict.append(bus.end_location)
+    day=request.session.get('day')
+    for r in bus.routes.all():
+        dict=r.map(day)
     length=len(dict) 
     p=0
-    le=Seatclass.objects.get(name=seat_type)
-    l=le.available_seats
+    q=0
+    le=Seatclass.objects.get(bus=bus,name=seat_type)
+    l=le.total_seats
     dict_2={}
     arr_1=[]
-    for i in range(0,length):
-        p=0
-        for j in range(0,length):
-            for b in book:
-                if (((b.boarding==dict[i]) and (b.deboarding==dict[j]) and (j>i))):
-                    p=p+1
-            if(j>i):        
-                 dict_1[f'{dict[i]} to {dict[j]}']=l-p
-
-
-    for i in range(0,1):
-        for j in range(1,length):
-            if ((j>i) and (dict_1[f'{dict[i]} to {dict[j]}']<l)):
-                p= dict_1[f'{dict[i]} to {dict[j]}']
-                print(f"outer loop elements:{dict[i]} to {dict[j]} i:{i} j:{j}")
-                print(p)
-                for a in range(1,j):
-                    print("a loop \n")
-                    print(dict[a])
-                    for b in range(1,j):
-                        if ((b>a)):
-                            dict_1[f'{dict[a]} to {dict[b]}']-=l-p
-                            print(f"reducing seats in : {dict[a]} to {dict[b]}")
-    print(book)
-    print(dict)
-    print(dict_1)
+    if book:
+     for i in range(0,length):
+         for a in range(1,length):
+             for b in book:
+                 p=0
+                 if b.deboarding==str(dict[a]) and  b.boarding==str(dict[i]) and i<a:
+                     p=p+1
+                     for j in range(0,length):
+                         for k in range(0,length):
+                             if k>j and (j<a) :
+                                 q = dict_1.get(f"{dict[j]} to {dict[k]}", 0) 
+                                 if q==0:
+                                     dict_1[f"{dict[j]} to {dict[k]}"]=l-p
+                                 else:
+                                     dict_1[f"{dict[j]} to {dict[k]}"]=q-p
+                               
+                 else:
+                     for j in range(0,a):
+                         for k in range(1,a+1):
+                           if k>j  :
+                               q = dict_1.get(f"{dict[j]} to {dict[k]}", 0) 
+                               if q==0:
+                                  dict_1[f"{dict[j]} to {dict[k]}"]=l
+                               else:
+                                 dict_1[f"{dict[j]} to {dict[k]}"]=q                           
+    else:
+        for i in range(1,length):
+             for j in range(0,i):
+                 dict_1[f"{dict[j]} to {dict[i]}"]=l
     return(dict_1)
 
 
-def export_1(request):
-    data=Booking.objects.all()
-    read=pd.DataFrame(data)
-    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    
-    response['Content-Disposition'] = 'attachment; filename="reservations.xlsx"'
-    with pd.ExcelWriter(response, engine='openpyxl') as writer:
-        read.to_excel(writer, index=False, sheet_name='Reservations')
-
-    return response
 
 @admin.action(description='Export all bookings to Excel')
 def export(modeladmin, request,queryset):
@@ -566,29 +449,6 @@ def export(modeladmin, request,queryset):
         read.to_excel(writer, index=False, sheet_name='Bookings')
 
     return response
-
-
-
-
-
-
-
-
-
-
-          
-
-                    
-
-
-
-
-
-    
-
-
-
-    
 
 
 

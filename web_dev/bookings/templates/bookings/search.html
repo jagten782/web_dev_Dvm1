@@ -19,11 +19,13 @@
         <tr>
             {% if t == bus.name %}
             <td>{{ bus.name }}</td>
-            <td>{{ bus.start_location }} → 
-                {% for order in bus.intermediate_stops.all %}
-                {{order.location}} →
+            <td>
+                {% for ord in bus.routes.all %}
+                {% for order in ord.intermediate_stops.all %}
+                 {{order.location}} →
                 {% endfor %}
-                {{ bus.end_location }}</td>
+                {% endfor %}
+                </td>
             <td>{{ p }}</td>
             <td>{{ bus.duration }} hours</td>
             <td>

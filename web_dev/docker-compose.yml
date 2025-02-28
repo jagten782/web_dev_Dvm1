@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_USER: aditya
       POSTGRES_PASSWORD: web_dev_2025
-      POSTGRES_DB: aditya
+      POSTGRES_DB: aditya_3
     ports:
       - "5432:5432"
     networks:
@@ -27,7 +27,7 @@ services:
       - bus_booking_network
     environment:
       DATABASE_HOST: db  
-      DATABASE_NAME: aditya
+      DATABASE_NAME: aditya_3
       DATABASE_USER: aditya
       DATABASE_PASSWORD: web_dev_2025
     command: gunicorn web_dev.wsgi:application --bind 0.0.0.0:8000

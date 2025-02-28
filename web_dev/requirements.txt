@@ -4,5 +4,5 @@ gunicorn==21.2.0
 django-allauth
 social-auth-app-django
 python-dotenv==1.0.1
-
+pandas==2.2.3
 

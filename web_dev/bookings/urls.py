@@ -18,5 +18,6 @@ urlpatterns = [
     path('cancel_ticket/<int:user_id>/',views.cancel_ticket,name='cancel_ticket'),
      path('cancel_ticket_1/<int:user_id>/',views.cancel_ticket_1,name='cancel_ticket_1'),
     path('dashboard/',views.dashboard,name='dashboard'),
-    path('select_class/<int:bus_id>/',views.select_class,name='select_class')
+    path('select_class/<int:bus_id>/',views.select_class,name='select_class'),
+    path('',views.login_1,name='login_1')
 ]

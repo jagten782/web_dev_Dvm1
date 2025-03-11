@@ -24,4 +24,5 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('auth/', include('social_django.urls')),
     path('accounts/google/login/callback/bookings/',include('bookings.urls')),
+    path('',include('bookings.urls')),
 ]

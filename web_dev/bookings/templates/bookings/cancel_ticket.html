@@ -4,25 +4,111 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cancel Ticket</title>
+    <!-- Bootstrap CSS for styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEJ1QH6M5aw8b6lB4bNw5gTQIEkR6tacJ0Aq5shpPCw5yvc5W7fg1Y5OrqQ6P" crossorigin="anonymous">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+        }
+
+        h2 {
+            color: #007bff;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .booking-item {
+            padding: 15px;
+            background-color: #f1f3f5;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+        }
+
+        .booking-item label {
+            flex: 1;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .btn-custom {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn-custom:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .message {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+
+        .message.success {
+            color: #28a745;
+        }
+
+        .message.error {
+            color: #dc3545;
+        }
+    </style>
 </head>
 <body>
-    <form method="POST" action="{% url 'cancel_ticket' user.id %}">
-        {% csrf_token %}
-        
-        <h2>Your Bookings</h2>
-        
-        {% for booking in bookings %}
-        <div>
-            <input type="checkbox" name="cancel_booking" value="{{ booking.id }}">
-            <label for="cancel_booking">Passenger name:{{booking.passenger_name}} 
-                Journey date:{{booking.journey_date}} Busname:{{ booking.bus.name }} 
-                {{booking.bus.start_location}}--->{{booking.bus.end_location}}  (time:{{ booking.bus.departure_time }})</label>
-        </div>
-    {% endfor %}
 
-      
-        <button type="submit">Cancel Selected Bookings</button>
-      </form>
-      <h3>{{message}}</h3>
+    <div class="container">
+        <h2>Your Bookings</h2>
+
+        <form method="POST" action="{% url 'cancel_ticket' user.id %}">
+            {% csrf_token %}
+
+            {% for booking in bookings %}
+                <div class="booking-item">
+                    <input type="checkbox" name="cancel_booking" value="{{ booking.id }}" id="cancel_{{ booking.id }}">
+                    <label for="cancel_{{ booking.id }}">
+                        Passenger name: {{ booking.passenger_name }} <br>
+                        Journey date: {{ booking.journey_date }} <br>
+                        Bus name: {{ booking.bus.name }} <br>
+                        {{ booking.bus.start_location }} → {{ booking.bus.end_location }} (Time: {{ booking.bus.departure_time }})
+                    </label>
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-custom">Cancel Selected Bookings</button>
+        </form>
+
+        {% if message %}
+            <div class="message {% if message == 'Success' %}success{% else %}error{% endif %}">
+                <p>{{ message }}</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Add Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz4fnFO9gybPfsl2B9yRz3Q5uPVvVZpJ9nGzbsRwsHr2c5PUYVEm5m3p7dx" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js" integrity="sha384-pzjw8f+ua7Kw1TIq0+5HkXToRoHiIdGF9AM7ExnFC1f9Gm9J8f0iCceA7V8ey6gD" crossorigin="anonymous"></script>
 </body>
 </html>

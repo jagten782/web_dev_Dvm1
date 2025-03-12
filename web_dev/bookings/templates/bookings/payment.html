@@ -3,24 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Booking Success</title>
+    <!-- Add Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEJ1QH6M5aw8b6lB4bNw5gTQIEkR6tacJ0Aq5shpPCw5yvc5W7fg1Y5OrqQ6P" crossorigin="anonymous">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        h3 {
+            color: #28a745;
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+
+        .details {
+            margin: 20px 0;
+            font-size: 1.2rem;
+            color: #333;
+        }
+
+        .details div {
+            margin-bottom: 15px;
+        }
+
+        .btn-custom {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-custom:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .balance-info {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #007bff;
+            margin-top: 25px;
+        }
+    </style>
 </head>
 <body>
-    <h3>Booking success!!</h3>
-   <div>
-    Paid Rs:{{cost}}
-   </div>
-    <div>
-        Tickets Booked:{{num_tickets}}
+
+    <div class="container">
+        <h3>Booking Success!</h3>
+        
+        <div class="details">
+            <div>Paid Rs: <strong>{{ cost }}</strong></div>
+            <div>Tickets Booked: <strong>{{ num_tickets }}</strong></div>
+            <div>Your balance is: <strong>{{ balance }}</strong></div>
+        </div>
+
+        <div>
+            <form method="POST" action="{% url 'redirect_to_dashboard' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-custom">Go to Dashboard</button>
+            </form>
+        </div>
     </div>
-    <div>
-        Your balance is:{{balance}}
-    </div>
-   <div>
-    <form method="POST" action="{% url 'redirect_to_dashboard' %}">
-        {% csrf_token %}
-       <button type="submit">Go to dashboard</button>
-    </form>
-   </div>
+
+    <!-- Add Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz4fnFO9gybPfsl2B9yRz3Q5uPVvVZpJ9nGzbsRwsHr2c5PUYVEm5m3p7dx" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js" integrity="sha384-pzjw8f+ua7Kw1TIq0+5HkXToRoHiIdGF9AM7ExnFC1f9Gm9J8f0iCceA7V8ey6gD" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -4,29 +4,138 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Ticket</title>
+    <!-- Add Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Add Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEJ1QH6M5aw8b6lB4bNw5gTQIEkR6tacJ0Aq5shpPCw5yvc5W7fg1Y5OrqQ6P" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f4f7fc;
+            padding: 50px;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            margin: 0 auto;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .form-control, button {
+            font-size: 1rem;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            width: 100%;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, button:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .passenger {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .passenger label {
+            font-weight: 600;
+            color: #333;
+            margin-top: 10px;
+            display: block;
+        }
+
+        .passenger input {
+            margin-top: 5px;
+        }
+
+        .checkbox-container {
+            margin-bottom: 20px;
+        }
+
+        .checkbox-container input {
+            margin-right: 10px;
+        }
+
+        .checkbox-container label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Added margin to shift Add Details button lower */
+        .add-details-btn {
+            margin-top: 30px;
+        }
+
+        /* Fade-in Animation */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error-message {
+            color: red;
+            font-size: 1rem;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
 
     <h2>Book Ticket for {{ bus.name }}</h2>
 
-    
     {% if error %}
-        <p style="color: red;">{{ error }}</p>
+        <div class="error-message">{{ error }}</div>
     {% endif %}
 
-    
     <form method="POST" action="{% url 'booking' bus_id %}">
         {% csrf_token %}
-        
-        
         <label for="tickets">Enter Number of Passengers:</label>
         <input type="number" name="tickets" id="tickets" value="{{ range|length }}" required>
-        
-        <button type="submit" name="add">Add Details</button>
+
+        <!-- Shift "Add Details" button lower using a specific class -->
+        <div class="add-details-btn">
+            <button type="submit" name="add">Add Details</button>
+        </div>
     </form>
 
     {% if range %}
-   
     <form method="POST" action="{% url 'booking' bus_id %}">
         {% csrf_token %}
         
@@ -41,12 +150,13 @@
                 <label for="email_{{ i }}">Passenger Email {{ i|add:1 }}:</label>
                 <input type="email" name="email_{{ i }}" id="email_{{ i }}" required>
             </div>
-            <br>
         {% endfor %}
-
-       
-        <label for="payments">Save and Make Payment:</label>
-        <input type="checkbox" name="payments" id="payments" value="ON">
+        
+        <div class="checkbox-container">
+            <label for="payments">
+                <input type="checkbox" name="payments" id="payments" value="ON"> Save and Make Payment
+            </label>
+        </div>
 
         <button type="submit" name="payments">Pay Now</button>
     </form>
@@ -54,3 +164,4 @@
 
 </body>
 </html>
+

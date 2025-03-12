@@ -24,9 +24,6 @@ def register(request):
         request.session['username']=uname
         request.session['email']=uemail
         request.session['Password']=upass
-        print(f'{uname}. {uemail}.  {upass} sending to backend')
-        range=[uname,uemail,upass]
-        
         if User.objects.filter(username=uname).exists():
             return render(request, "bookings/register.html", {"error": "Username already taken!"})
         request.session['user_email'] = uemail
@@ -35,15 +32,9 @@ def register(request):
          r_email=request.session['user_email']
          send_otp_email(request,r_email)
         if 'verify_otp' in request.POST:
-         print('hello') 
-         print('\n')
          otp=request.session['otp']
          i_otp=request.POST.get('ootp')
-         print(f'otp generated is {otp}  otp entered is {i_otp}')
-         print('\n')
          if ((int(otp)-int(i_otp))==0):
-             print('verified')
-
              user_1=User.objects.create_user(uname,uemail,upass)
              user_1.save()
              print('created user')
@@ -53,9 +44,8 @@ def register(request):
          else:
              return render(request,'bookings/register.html',{'message_1':'You have entered wrong otp!!!'})
         else:
-            return render(request,'bookings/register.html',{'message':'show otp','range':range}) 
-    return  render(request, "bookings/register.html") 
-
+            return render(request,'bookings/register.html',{'message':'show otp','username':uname,'email':uemail,'password':upass}) 
+    return  render(request, "bookings/register.html")
 
 def login_1(request):
     print(User.objects.all())
@@ -109,15 +99,15 @@ def search_results(request):
                 stops = Route.objects.filter(bus=bus)
                 print(stops)
                 for stop in stops:
-                    s=0
-                    k=0
+                    s=-1
+                    k=-1
                     for intermediate_stop in stop.intermediate_stops.all():
                          if str(intermediate_stop.location) == source:
                               s=intermediate_stop.stop_order
                               t=intermediate_stop.arrival_time
-                         if str(intermediate_stop.location) == dest:
+                         elif str(intermediate_stop.location) == dest:
                             k=intermediate_stop.stop_order
-                         if s<k and ((s*k)>0):    
+                         if s<k and s>=0 and k>0:    
                                 n=bus.name
                                 buses_1.append(n)
                                 time[n]=t
@@ -286,9 +276,15 @@ def add_money(request,user_id):
             try:
                 money_decimal = Decimal(money.strip())
                 wallet, created = Wallet.objects.get_or_create(user=request.user)
-                wallet.deposit(money_decimal)
-                print(f"update balance is:{wallet.balance}")
-                return render(request, 'bookings/dashboard.html',{'balance':wallet.balance})
+                if(money_decimal>0):
+                 wallet.deposit(money_decimal)
+                 print(f"update balance is:{wallet.balance}")
+                 return render(request, 'bookings/dashboard.html',{'balance':wallet.balance})
+                else:
+                    
+                 error_message = "Invalid amount entered. Please enter a valid number."
+                 return render(request, 'bookings/add_money.html', {'error': error_message})
+
             except :
                 error_message = "Invalid amount entered. Please enter a valid number."
                 return render(request, 'bookings/add_money.html', {'error': error_message})

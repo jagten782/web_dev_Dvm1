@@ -4,43 +4,161 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
+
+    <!-- Link to Bootstrap CSS for responsiveness and enhanced UI -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f4f7f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="text"], input[type="email"], input[type="number"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-top: 5px;
+        }
+
+        input[type="checkbox"] {
+            margin-left: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .message {
+            text-align: center;
+            font-size: 1rem;
+            color: red;
+            margin-top: 20px;
+        }
+
+        .form-group .error {
+            color: red;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .checkbox-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .hidden-input {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    <h1>Register here</h1>
-    <form method="POST" action="{% url 'register' %}" style="display:flex; gap:20px;">
-        {% csrf_token %}
-        <label for="username" style="gap:0px;">Username</label>
-        <input type="text" placeholder="username" name="username" id="username" >
 
-        <label for="email" style="gap:0px;">Enter valid google Email ID</label>
-        <input type="text" placeholder="email" name="email" id="email">
+    <div class="container">
+        <h1>Register Here</h1>
 
-         <label for="username" style="gap:0px;">Password</label>
-        <input type="text" placeholder="Password" name="Password" id="Password">
+        <form method="POST" action="{% url 'register' %}">
+            {% csrf_token %}
+            
+            
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" placeholder="Enter Username" name="username" id="username" required>
+            </div>
 
-        <label for="send_otp">Verify email</label>
-        <input type="checkbox" name="send_otp" id="send_otp" value="ON">
-        <button type="submit">GET OTP </button>
-        {{error}}
-    </form>
-    
+            
+            <div class="form-group">
+                <label for="email">Enter Valid Google Email ID</label>
+                <input type="email" placeholder="Enter Email" name="email" id="email" required>
+                <div class="error">{{ error }}</div>
+            </div>
 
-{% if message %}       
-    <form method="POST" action="{% url 'register' %}">
-        {% csrf_token %}
-            <label for="ootp">Enter 6 digits otp sent to your entered email address</label>
-            <input type="number" placeholder="ootp" name="ootp" id="ootp" >
-            <input type="hidden" placeholder="username" name="username" id="username" value="{{ range.0 }}">
-            <input type="hidden" placeholder="email" name="email" id="email" value="{{ range.1 }}">
-            <input type="hidden" placeholder="Password" name="Password" id="Password" value="{{ range.2 }}">
-            <div>
-                <label for="verify_otp">Verify OTP:</label>
+            
+            <div class="form-group">
+                <label for="Password">Password</label>
+                <input type="password" placeholder="Enter Password" name="Password" id="Password" required>
+            </div>
+
+            
+            <div class="form-group">
+                <label for="send_otp" class="checkbox-label">Verify Email</label>
+                <input type="checkbox" name="send_otp" id="send_otp" value="ON">
+            </div>
+
+            <button type="submit">Get OTP</button>
+
+        </form>
+
+        {% if message %}
+        <form method="POST" action="{% url 'register' %}">
+            {% csrf_token %}
+            
+            
+            <div class="form-group">
+                <label for="ootp">Enter OTP Sent to Your Email</label>
+                <input type="number" placeholder="Enter OTP" name="ootp" id="ootp" required>
+            </div>
+
+            
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" name="email" value="{{ email }}">
+            <input type="hidden" name="Password" value="{{ password }}">
+
+            
+            <div class="form-group">
+                <label for="verify_otp" class="checkbox-label">Verify OTP</label>
                 <input type="checkbox" name="verify_otp" id="verify_otp" value="ON">
             </div>
-            <button type="submit">SUBMIT AND REGISTER</button>
-            
-     </form>
-{% endif %}     
+
+            <button type="submit">Submit and Register</button>
+        </form>
+        {% endif %}
+
+    </div>
+
     
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz4fnFO9gybPfsl2B9yRz3Q5uPVvVZpJ9nGzbsRwsHr2c5PUYVEm5m3p7dx" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js" integrity="sha384-pzjw8f+ua7Kw1TIq0+5HkXToRoHiIdGF9AM7ExnFC1f9Gm9J8f0iCceA7V8ey6gD" crossorigin="anonymous"></script>
 </body>
 </html>

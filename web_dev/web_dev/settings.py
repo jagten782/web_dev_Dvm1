@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-7jlse7zk8u*!h^67b3ci=mot_@&j^6#5!s6%pzs=oxp56+0!jp
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1','bus_booking','13.233.122.153','3.109.213.130:8000']
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1','bus_booking','13.233.122.153','3.109.213.130']
 
 LOGIN_REDIRECT_URL = '/bookings/dashboard/'
 

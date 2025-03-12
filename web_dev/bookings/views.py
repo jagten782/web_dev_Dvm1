@@ -229,6 +229,7 @@ def booking(request, bus_id):
                 journey_date = datetime.strptime(date, '%Y-%m-%d').date()
                 print(journey_date)
                 fare=request.session.get('fare')
+                fare=Decimal(fare)
                 cost=num_tickets*fare
                 print(f'Cost is {cost}')
                 cost=Decimal(cost)
